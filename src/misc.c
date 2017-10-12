@@ -59,7 +59,7 @@ mrb_sdl2_misc_buffer_initialize(mrb_state *mrb, mrb_value self)
     break;
   case MRB_TT_ARRAY:
     {
-      mrb_int const n = mrb_ary_len(mrb, arg);
+      mrb_int const n = RARRAY_LEN(arg);
       if (0 == n) {
         mrb_raise(mrb, E_ARGUMENT_ERROR, "cannot accept empty array.");
       }
@@ -105,7 +105,7 @@ mrb_sdl2_misc_buffer_initialize(mrb_state *mrb, mrb_value self)
   }
 
   if (arg_type == MRB_TT_ARRAY) {
-    mrb_int const n = mrb_ary_len(mrb, arg);
+    mrb_int const n = RARRAY_LEN(arg);
     mrb_int i;
     enum mrb_vtype item_type = MRB_TT_MAXDEFINE;
     for (i = 0; i < n; ++i) {
@@ -226,7 +226,7 @@ mrb_sdl2_misc_floatbuffer_initialize(mrb_state *mrb, mrb_value self)
     break;
   case MRB_TT_ARRAY:
     {
-      mrb_int const n = mrb_ary_len(mrb, arg);
+      mrb_int const n = RARRAY_LEN(arg);
       if (0 == n) {
         mrb_raise(mrb, E_ARGUMENT_ERROR, "cannot accept empty array.");
       }
@@ -256,7 +256,7 @@ mrb_sdl2_misc_floatbuffer_initialize(mrb_state *mrb, mrb_value self)
   }
 
   if (arg_type == MRB_TT_ARRAY) {
-    mrb_int const n = mrb_ary_len(mrb, arg);
+    mrb_int const n = RARRAY_LEN(arg);
     mrb_int i;
     for (i = 0; i < n; ++i) {
       mrb_value const item = mrb_ary_ref(mrb, arg, i);
@@ -359,7 +359,7 @@ mrb_sdl2_misc_bytebuffer_initialize(mrb_state *mrb, mrb_value self)
     break;
   case MRB_TT_ARRAY:
     {
-      mrb_int const n = mrb_ary_len(mrb, arg);
+      mrb_int const n = RARRAY_LEN(arg);
       if (0 == n) {
         mrb_raise(mrb, E_ARGUMENT_ERROR, "cannot accept empty array.");
       }
@@ -389,7 +389,7 @@ mrb_sdl2_misc_bytebuffer_initialize(mrb_state *mrb, mrb_value self)
   }
 
   if (arg_type == MRB_TT_ARRAY) {
-    mrb_int const n = mrb_ary_len(mrb, arg);
+    mrb_int const n = RARRAY_LEN(arg);
     mrb_int i;
     for (i = 0; i < n; ++i) {
       mrb_value const item = mrb_ary_ref(mrb, arg, i);

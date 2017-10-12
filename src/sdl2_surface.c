@@ -184,7 +184,7 @@ mrb_sdl2_video_surface_fill_rects(mrb_state *mrb, mrb_value self)
   if (!mrb_array_p(rects)) {
     mrb_raise(mrb, E_TYPE_ERROR, "given 2nd argument is unexpected type (expected Array).");
   }
-  mrb_int const n = mrb_ary_len(mrb, rects);
+  mrb_int const n = RARRAY_LEN(rects);
   SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, self);
   SDL_Rect r[n];
   mrb_int i;
