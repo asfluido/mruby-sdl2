@@ -10,7 +10,8 @@
 static struct RClass *mod_Keyboard = NULL;
 static struct RClass *class_Keysym = NULL;
 
-typedef struct mrb_sdl2_keyboard_keysym_data_t {
+typedef struct mrb_sdl2_keyboard_keysym_data_t
+{
   SDL_Keysym keysym;
 } mrb_sdl2_keyboard_keysym_data_t;
 
@@ -20,16 +21,16 @@ mrb_sdl2_keyboard_keysym_data_free(mrb_state *mrb, void *p)
   mrb_free(mrb, p);
 }
 
-static struct mrb_data_type const mrb_sdl2_keyboard_keysym_data_type = {
+static struct mrb_data_type const mrb_sdl2_keyboard_keysym_data_type =
+{
   "Keysym", mrb_sdl2_keyboard_keysym_data_free
 };
 
 SDL_Keysym *
 mrb_sdl2_keyboard_keysym_get_ptr(mrb_state *mrb, mrb_value value)
 {
-  if (mrb_nil_p(value)) {
+  if(mrb_nil_p(value))
     return NULL;
-  }
   return &((mrb_sdl2_keyboard_keysym_data_t*)mrb_data_get_ptr(mrb, value, &mrb_sdl2_keyboard_keysym_data_type))->keysym;
 }
 
@@ -38,9 +39,8 @@ mrb_sdl2_keyboard_keysym(mrb_state *mrb, SDL_Keysym const *keysym)
 {
   mrb_sdl2_keyboard_keysym_data_t *data =
     (mrb_sdl2_keyboard_keysym_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_keyboard_keysym_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->keysym = *keysym;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_Keysym, &mrb_sdl2_keyboard_keysym_data_type, data));
 }
@@ -126,9 +126,8 @@ mrb_sdl2_keyboard_text_input_rect(mrb_state *mrb, mrb_value mod)
   mrb_value rect;
   mrb_get_args(mrb, "o", &rect);
   SDL_Rect const * const r = mrb_sdl2_rect_get_ptr(mrb, rect);
-  if (NULL == r) {
+  if(NULL == r)
     return mrb_nil_value();
-  }
   SDL_Rect tmp = *r;
   SDL_SetTextInputRect(&tmp);
   return mod;

@@ -25,9 +25,8 @@ void
 mruby_sdl2_raise_error(mrb_state *mrb)
 {
   char const *e = SDL_GetError();
-  if (NULL == e) {
+  if(NULL == e)
     e = "";
-  }
   mrb_value const exc = mrb_exc_new(mrb, class_SDL2Error, e, strlen(e));
   SDL_ClearError();
   mrb_exc_raise(mrb, exc);
@@ -40,14 +39,12 @@ mrb_sdl2_init(mrb_state *mrb, mrb_value self)
   mrb_int flags;
   int const argc = mrb_get_args(mrb, "|i", &flags);
   int ret;
-  if (0 == argc) {
+  if(0 == argc)
     ret = SDL_Init(SDL_INIT_EVERYTHING);
-  } else {
+  else
     ret = SDL_Init(flags);
-  }
-  if (0 != ret) {
+  if(0 != ret)
     mruby_sdl2_raise_error(mrb);
-  }
   return mrb_nil_value();
 }
 
@@ -63,9 +60,8 @@ mrb_sdl2_init_subsystem(mrb_state *mrb, mrb_value self)
 {
   mrb_int flags;
   mrb_get_args(mrb, "i", &flags);
-  if (0 != SDL_InitSubSystem(flags)) {
+  if(0 != SDL_InitSubSystem(flags))
     mruby_sdl2_raise_error(mrb);
-  }
   return mrb_nil_value();
 }
 

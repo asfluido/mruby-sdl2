@@ -16,16 +16,19 @@ static struct RClass *class_DisplayMode = NULL;
 static struct RClass *class_Window      = NULL;
 static struct RClass *class_GLContext   = NULL;
 
-typedef struct mrb_sdl2_video_displaymode_data_t {
+typedef struct mrb_sdl2_video_displaymode_data_t
+{
   SDL_DisplayMode mode;
 } mrb_sdl2_video_displaymode_data_t;
 
-typedef struct mrb_sdl2_video_window_data_t {
+typedef struct mrb_sdl2_video_window_data_t
+{
   bool        is_associated;
   SDL_Window *window;
 } mrb_sdl2_video_window_data_t;
 
-typedef struct mrb_sdl2_video_glcontext_data_t {
+typedef struct mrb_sdl2_video_glcontext_data_t
+{
   SDL_GLContext context;
 } mrb_sdl2_video_glcontext_data_t;
 
@@ -34,9 +37,8 @@ mrb_sdl2_video_displaymode_data_free(mrb_state *mrb, void *p)
 {
   mrb_sdl2_video_displaymode_data_t *data =
     (mrb_sdl2_video_displaymode_data_t*)p;
-  if (NULL != data) {
+  if(NULL != data)
     mrb_free(mrb, data);
-  }
 }
 
 static void
@@ -44,10 +46,10 @@ mrb_sdl2_video_window_data_free(mrb_state *mrb, void *p)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)p;
-  if (NULL != data) {
-    if ((!data->is_associated) && (NULL != data->window)) {
+  if(NULL != data)
+  {
+    if((!data->is_associated) && (NULL != data->window))
       SDL_DestroyWindow(data->window);
-    }
     mrb_free(mrb, data);
   }
 }
@@ -57,32 +59,34 @@ mrb_sdl2_video_glcontext_data_free(mrb_state *mrb, void *p)
 {
   mrb_sdl2_video_glcontext_data_t *data =
     (mrb_sdl2_video_glcontext_data_t*)p;
-  if (NULL != data) {
-    if (NULL != data->context) {
+  if(NULL != data)
+  {
+    if(NULL != data->context)
       SDL_GL_DeleteContext(data->context);
-    }
     mrb_free(mrb, data);
   }
 }
 
-static struct mrb_data_type const mrb_sdl2_video_displaymode_data_type = {
+static struct mrb_data_type const mrb_sdl2_video_displaymode_data_type =
+{
   "DisplayMode", mrb_sdl2_video_displaymode_data_free
 };
 
-static struct mrb_data_type const mrb_sdl2_video_window_data_type = {
+static struct mrb_data_type const mrb_sdl2_video_window_data_type =
+{
   "Window", mrb_sdl2_video_window_data_free
 };
 
-static struct mrb_data_type const mrb_sdl2_video_glcontext_data_type = {
+static struct mrb_data_type const mrb_sdl2_video_glcontext_data_type =
+{
   "GLContext", mrb_sdl2_video_glcontext_data_free
 };
 
 SDL_Window *
 mrb_sdl2_video_window_get_ptr(mrb_state *mrb, mrb_value window)
 {
-  if (mrb_nil_p(window)) {
+  if(mrb_nil_p(window))
     return NULL;
-  }
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, window, &mrb_sdl2_video_window_data_type);
   return data->window;
@@ -93,9 +97,8 @@ mrb_sdl2_video_window(mrb_state *mrb, SDL_Window *window)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_window_data_t));
-  if (NULL != data) {
+  if(NULL != data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->is_associated = false;
   data->window = window;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_Window, &mrb_sdl2_video_window_data_type, data));
@@ -106,9 +109,8 @@ mrb_sdl2_video_associated_window(mrb_state *mrb, SDL_Window *window)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_window_data_t));
-  if (NULL != data) {
+  if(NULL != data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->is_associated = true;
   data->window = window;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_Window, &mrb_sdl2_video_window_data_type, data));
@@ -129,19 +131,19 @@ mrb_sdl2_video_init(mrb_state *mrb, mrb_value self)
   mrb_value name;
   int const argc = mrb_get_args(mrb, "|o", &name);
   int ret = 0;
-  if (0 == argc) {
+  if(0 == argc)
     ret = SDL_VideoInit(NULL);
-  } else if (mrb_string_p(name)) {
+  else if(mrb_string_p(name))
     ret = SDL_VideoInit(RSTRING_PTR(name));
-  } else if (mrb_respond_to(mrb, name, mrb_intern(mrb, "to_s", 4))) {
+  else if(mrb_respond_to(mrb, name, mrb_intern(mrb, "to_s", 4)))
+  {
     name = mrb_funcall(mrb, name, "to_s", 0);
     ret = SDL_VideoInit(RSTRING_PTR(name));
-  } else {
+  }
+  else
     mrb_raise(mrb, E_TYPE_ERROR, "supplied argument cannot be converted to string.");
-  }
-  if (0 != ret) {
+  if(0 != ret)
     mruby_sdl2_raise_error(mrb);
-  }
   return mrb_nil_value();
 }
 
@@ -172,11 +174,10 @@ mrb_sdl2_video_set_screen_saver_enabled(mrb_state *mrb, mrb_value self)
 {
   mrb_bool enabled;
   mrb_get_args(mrb, "b", &enabled);
-  if (enabled) {
+  if(enabled)
     SDL_EnableScreenSaver();
-  } else {
+  else
     SDL_DisableScreenSaver();
-  }
   return self;
 }
 
@@ -187,12 +188,12 @@ static mrb_value
 mrb_sdl2_video_get_video_drivers(mrb_state *mrb, mrb_value self)
 {
   int const n = SDL_GetNumVideoDrivers();
-  if (n < 0) {
+  if(n < 0)
     mruby_sdl2_raise_error(mrb);
-  }
   int i;
   mrb_value array = mrb_ary_new_capa(mrb, n);
-  for (i = 0; i < n; ++i) {
+  for(i = 0; i < n; ++i)
+  {
     mrb_value const str = mrb_str_new_cstr(mrb, SDL_GetVideoDriver(i));
     mrb_ary_push(mrb, array, str);
   }
@@ -208,23 +209,23 @@ mrb_sdl2_video_get_display_modes(mrb_state *mrb, mrb_value self)
   mrb_int index;
   mrb_get_args(mrb, "i", &index);
   int const n = SDL_GetNumDisplayModes(index);
-  if (0 > n) {
+  if(0 > n)
     mruby_sdl2_raise_error(mrb);
-  }
   mrb_value array = mrb_ary_new_capa(mrb, n);
   int i;
-  for (i = 0; i < n; ++i) {
+  for(i = 0; i < n; ++i)
+  {
     mrb_sdl2_video_displaymode_data_t *data =
       (mrb_sdl2_video_displaymode_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_displaymode_data_t));
-    if (NULL == data) {
+    if(NULL == data)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
-    if (0 == SDL_GetDisplayMode(index, i, &data->mode)) {
+    if(0 == SDL_GetDisplayMode(index, i, &data->mode))
+    {
       mrb_value const item = mrb_obj_value(Data_Wrap_Struct(mrb, class_DisplayMode, &mrb_sdl2_video_displaymode_data_type, data));
       mrb_ary_push(mrb, array, item);
-    } else {
-      mrb_free(mrb, data);
     }
+    else
+      mrb_free(mrb, data);
   }
   return array;
 }
@@ -236,9 +237,8 @@ static mrb_value
 mrb_sdl2_video_get_displays(mrb_state *mrb, mrb_value self)
 {
   int const n = SDL_GetNumVideoDisplays();
-  if (0 > n) {
+  if(0 > n)
     mruby_sdl2_raise_error(mrb);
-  }
   return mrb_fixnum_value(n);
 }
 
@@ -326,22 +326,23 @@ mrb_sdl2_video_window_initialize(mrb_state *mrb, mrb_value self)
   mrb_int x, y, w, h;
   uint32_t flags;
   int const argc = mrb_get_args(mrb, "|Siiiii", &title, &x, &y, &w, &h, &flags);
-  if ((0 != argc) && (6 != argc)) {
+  if((0 != argc) && (6 != argc))
     mrb_raise(mrb, E_ARGUMENT_ERROR, "wrong number of arguments.");
-  }
-  if (NULL == data) {
+  if(NULL == data)
+  {
     data = (mrb_sdl2_video_window_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_window_data_t));
-    if (NULL == data) {
+    if(NULL == data)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
   }
-  if (6 == argc) {
+  if(6 == argc)
+  {
     data->is_associated = false;
     data->window = SDL_CreateWindow(RSTRING_PTR(title), x, y, w, h, flags);
-    if (NULL == data->window) {
+    if(NULL == data->window)
       mruby_sdl2_raise_error(mrb);
-    }
-  } else {
+  }
+  else
+  {
     data->is_associated = false;
     data->window = NULL;
   }
@@ -358,17 +359,15 @@ mrb_sdl2_video_window_create(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL != data->window) {
+  if(NULL != data->window)
     mrb_raise(mrb, class_SDL2Error, "window has already been created.");
-  }
   mrb_value title;
   mrb_int x, y, w, h;
   uint32_t flags;
   mrb_get_args(mrb, "Siiiii", &title, &x, &y, &w, &h, &flags);
   data->window = SDL_CreateWindow(RSTRING_PTR(title), x, y, w, h, flags);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     mruby_sdl2_raise_error(mrb);
-  }
   return self;
 }
 
@@ -377,22 +376,19 @@ mrb_sdl2_video_window_create_with_renderer(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL != data->window) {
+  if(NULL != data->window)
     mrb_raise(mrb, class_SDL2Error, "window has already been created.");
-  }
   SDL_Window *window = NULL;
   SDL_Renderer *renderer = NULL;
   mrb_int w, h;
   uint32_t flags;
   mrb_get_args(mrb, "iii", &w, &h, &flags);
   int const ret = SDL_CreateWindowAndRenderer(w, h, flags, &window, &renderer);
-  if (0 != ret) {
+  if(0 != ret)
     mruby_sdl2_raise_error(mrb);
-  }
   data->window = window;
-  if (NULL == renderer) {
+  if(NULL == renderer)
     return mrb_nil_value();
-  }
   return mrb_sdl2_video_renderer(mrb, renderer);
 }
 
@@ -404,7 +400,8 @@ mrb_sdl2_video_window_destroy(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL != data->window) {
+  if(NULL != data->window)
+  {
     SDL_DestroyWindow(data->window);
     data->window = NULL;
   }
@@ -419,9 +416,8 @@ mrb_sdl2_video_window_get_size(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   int w, h;
   SDL_GetWindowSize(data->window, &w, &h);
   return mrb_sdl2_size(mrb, w, h);
@@ -445,9 +441,8 @@ mrb_sdl2_video_window_get_position(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   int x, y;
   SDL_GetWindowPosition(data->window, &x, &y);
   return mrb_sdl2_point(mrb, x, y);
@@ -470,13 +465,11 @@ mrb_sdl2_video_window_get_title(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   char const *title = SDL_GetWindowTitle(data->window);
-  if (NULL == title) {
+  if(NULL == title)
     return mrb_nil_value();
-  }
   return mrb_str_new_cstr(mrb, title);
 }
 
@@ -485,9 +478,8 @@ mrb_sdl2_video_window_set_title(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   mrb_value title;
   mrb_get_args(mrb, "S", &title);
   SDL_SetWindowTitle(data->window, RSTRING_PTR(title));
@@ -499,14 +491,12 @@ mrb_sdl2_video_window_set_fullscreen(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   uint32_t flags;
   mrb_get_args(mrb, "i", &flags);
-  if (0 != SDL_SetWindowFullscreen(data->window, flags)) {
+  if(0 != SDL_SetWindowFullscreen(data->window, flags))
     mruby_sdl2_raise_error(mrb);
-  }
   return self;
 }
 
@@ -515,9 +505,8 @@ mrb_sdl2_video_window_maximize(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   SDL_MaximizeWindow(data->window);
   return self;
 }
@@ -527,9 +516,8 @@ mrb_sdl2_video_window_minimize(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   SDL_MinimizeWindow(data->window);
   return self;
 }
@@ -539,9 +527,8 @@ mrb_sdl2_video_window_show(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   SDL_ShowWindow(data->window);
   return self;
 }
@@ -551,9 +538,8 @@ mrb_sdl2_video_window_hide(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   SDL_HideWindow(data->window);
   return self;
 }
@@ -563,9 +549,8 @@ mrb_sdl2_video_window_restore(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   SDL_RestoreWindow(data->window);
   return self;
 }
@@ -575,9 +560,8 @@ mrb_sdl2_video_window_raise(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   SDL_RaiseWindow(data->window);
   return self;
 }
@@ -587,19 +571,18 @@ mrb_sdl2_video_window_make_current(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   mrb_value arg;
   mrb_get_args(mrb, "o", &arg);
   SDL_GLContext *context = NULL;
-  if (!mrb_nil_p(arg)) {
+  if(!mrb_nil_p(arg))
+  {
     context =
       ((mrb_sdl2_video_glcontext_data_t*)mrb_data_get_ptr(mrb, arg, &mrb_sdl2_video_glcontext_data_type))->context;
   }
-  if (0 != SDL_GL_MakeCurrent(data->window, context)) {
+  if(0 != SDL_GL_MakeCurrent(data->window, context))
     mruby_sdl2_raise_error(mrb);
-  }
   return self;
 }
 
@@ -720,13 +703,11 @@ mrb_sdl2_video_window_get_surface(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   SDL_Surface *s = SDL_GetWindowSurface(data->window);
-  if (NULL == s) {
+  if(NULL == s)
     mruby_sdl2_raise_error(mrb);
-  }
   return mrb_sdl2_video_surface(mrb, s, true);
 }
 
@@ -735,12 +716,10 @@ mrb_sdl2_video_window_update_surface(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
-  if (0 != SDL_UpdateWindowSurface(data->window)) {
+  if(0 != SDL_UpdateWindowSurface(data->window))
     mruby_sdl2_raise_error(mrb);
-  }
   return self;
 }
 
@@ -756,13 +735,11 @@ mrb_sdl2_video_window_get_renderer(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   SDL_Renderer *renderer = SDL_GetRenderer(data->window);
-  if (NULL == renderer) {
+  if(NULL == renderer)
     mruby_sdl2_raise_error(mrb);
-  }
   return mrb_sdl2_video_renderer(mrb, renderer);
 }
 
@@ -771,9 +748,8 @@ mrb_sdl2_video_window_swap(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_video_window_data_t *data =
     (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_video_window_data_type);
-  if (NULL == data->window) {
+  if(NULL == data->window)
     return mrb_nil_value();
-  }
   SDL_GL_SwapWindow(data->window);
   return self;
 }
@@ -794,18 +770,20 @@ mrb_sdl2_video_glcontext_initialize(mrb_state *mrb, mrb_value self)
     (mrb_sdl2_video_glcontext_data_t*)DATA_PTR(self);
   mrb_value window;
   int const argc = mrb_get_args(mrb, "|o", &window);
-  if (NULL == data) {
+  if(NULL == data)
+  {
     data = (mrb_sdl2_video_glcontext_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_video_glcontext_data_t));
-    if (NULL == data) {
+    if(NULL == data)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
   }
   SDL_GLContext context = NULL;
-  if (0 != argc) {
+  if(0 != argc)
+  {
     mrb_sdl2_video_window_data_t *window_data =
       (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, window, &mrb_sdl2_video_window_data_type);
     context = SDL_GL_CreateContext(window_data->window);
-    if (NULL == context) {
+    if(NULL == context)
+    {
       mrb_free(mrb, data);
       mruby_sdl2_raise_error(mrb);
     }
@@ -827,16 +805,16 @@ mrb_sdl2_video_glcontext_create(mrb_state *mrb, mrb_value self)
   mrb_value window;
   mrb_get_args(mrb, "o", &window);
   SDL_GLContext context = NULL;
-  if (mrb_nil_p(window)) {
+  if(mrb_nil_p(window))
     context = SDL_GL_CreateContext(NULL);
-  } else {
+  else
+  {
     mrb_sdl2_video_window_data_t *window_data =
       (mrb_sdl2_video_window_data_t*)mrb_data_get_ptr(mrb, window, &mrb_sdl2_video_window_data_type);
     context = SDL_GL_CreateContext(window_data->window);
   }
-  if (NULL == context) {
+  if(NULL == context)
     mruby_sdl2_raise_error(mrb);
-  }
   data->context = context;
   return self;
 }

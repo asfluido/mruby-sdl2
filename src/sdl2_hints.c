@@ -13,13 +13,11 @@ mrb_sdl2_hints_get(mrb_state *mrb, mrb_value mod)
 {
   mrb_value name;
   mrb_get_args(mrb, "S", &name);
-  if (mrb_nil_p(name)) {
+  if(mrb_nil_p(name))
     return mrb_nil_value();
-  }
   char const *value = SDL_GetHint(RSTRING_PTR(name));
-  if (NULL == value) {
+  if(NULL == value)
     return mrb_nil_value();
-  }
   return mrb_str_new_cstr(mrb, value);
 }
 
@@ -28,18 +26,18 @@ mrb_sdl2_hints_set(mrb_state *mrb, mrb_value mod)
 {
   mrb_value name, value;
   mrb_get_args(mrb, "So", &name, &value);
-  if (mrb_nil_p(name) || mrb_nil_p(value)) {
+  if(mrb_nil_p(name) || mrb_nil_p(value))
     return mrb_false_value();
-  }
-  if (mrb_type(value) != MRB_TT_STRING) {
-    if (mrb_respond_to(mrb, value, mrb_intern(mrb, "to_s", 4))) {
+  if(mrb_type(value) != MRB_TT_STRING)
+  {
+    if(mrb_respond_to(mrb, value, mrb_intern(mrb, "to_s", 4)))
+    {
       value = mrb_funcall(mrb, value, "to_s", 0);
-      if (mrb_nil_p(value)) {
+      if(mrb_nil_p(value))
         return mrb_false_value();
-      }
-    } else {
-      mrb_raise(mrb, E_TYPE_ERROR, "expect String");
     }
+    else
+      mrb_raise(mrb, E_TYPE_ERROR, "expect String");
   }
   SDL_bool const ret = SDL_SetHint(RSTRING_PTR(name), RSTRING_PTR(value));
   return (SDL_FALSE == ret) ? mrb_false_value() : mrb_true_value();
@@ -51,18 +49,18 @@ mrb_sdl2_hints_set_with_priority(mrb_state *mrb, mrb_value mod)
   mrb_value name, value;
   mrb_int priority;
   mrb_get_args(mrb, "Soi", &name, &value, &priority);
-  if (mrb_nil_p(name) || mrb_nil_p(value)) {
+  if(mrb_nil_p(name) || mrb_nil_p(value))
     return mrb_false_value();
-  }
-  if (mrb_type(value) != MRB_TT_STRING) {
-    if (mrb_respond_to(mrb, value, mrb_intern(mrb, "to_s", 4))) {
+  if(mrb_type(value) != MRB_TT_STRING)
+  {
+    if(mrb_respond_to(mrb, value, mrb_intern(mrb, "to_s", 4)))
+    {
       value = mrb_funcall(mrb, value, "to_s", 0);
-      if (mrb_nil_p(value)) {
+      if(mrb_nil_p(value))
         return mrb_false_value();
-      }
-    } else {
-      mrb_raise(mrb, E_TYPE_ERROR, "expect String");
     }
+    else
+      mrb_raise(mrb, E_TYPE_ERROR, "expect String");
   }
   SDL_bool const ret = SDL_SetHintWithPriority(RSTRING_PTR(name), RSTRING_PTR(value), (SDL_HintPriority)priority);
   return (SDL_FALSE == ret) ? mrb_false_value() : mrb_true_value();

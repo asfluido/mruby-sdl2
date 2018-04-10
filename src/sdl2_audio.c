@@ -12,26 +12,31 @@ static struct RClass *class_AudioSpec   = NULL;
 static struct RClass *class_AudioDevice = NULL;
 static struct RClass *class_AudioData   = NULL;
 
-typedef struct mrb_sdl2_audio_userdata_t {
+typedef struct mrb_sdl2_audio_userdata_t
+{
   mrb_state *mrb;
   mrb_value  obj;
 } mrb_sdl2_audio_userdata_t;
 
-typedef struct mrb_sdl2_audio_audiocvt_data_t {
+typedef struct mrb_sdl2_audio_audiocvt_data_t
+{
   SDL_AudioCVT cvt;
 } mrb_sdl2_audio_audiocvt_data_t;
 
-typedef struct mrb_sdl2_audio_audiospec_data_t {
+typedef struct mrb_sdl2_audio_audiospec_data_t
+{
   SDL_AudioSpec             spec;
   mrb_sdl2_audio_userdata_t udata;
 } mrb_sdl2_audio_audiospec_data_t;
 
-typedef struct mrb_sdl2_audio_audiodevice_data_t {
+typedef struct mrb_sdl2_audio_audiodevice_data_t
+{
   SDL_AudioDeviceID id;
   SDL_AudioSpec     spec;
 } mrb_sdl2_audio_audiodevice_data_t;
 
-typedef struct mrb_sdl2_audio_audiodata_data_t {
+typedef struct mrb_sdl2_audio_audiodata_data_t
+{
   Uint8*                          buf;
   Uint32                          len;
 } mrb_sdl2_audio_audiodata_data_t;
@@ -41,10 +46,10 @@ mrb_sdl2_audio_audiocvt_data_free(mrb_state *mrb, void *p)
 {
   mrb_sdl2_audio_audiocvt_data_t *data =
     (mrb_sdl2_audio_audiocvt_data_t*)p;
-  if (NULL != data) {
-    if (NULL != data->cvt.buf) {
+  if(NULL != data)
+  {
+    if(NULL != data->cvt.buf)
       mrb_free(mrb, data->cvt.buf);
-    }
     mrb_free(mrb, p);
   }
 }
@@ -54,9 +59,8 @@ mrb_sdl2_audio_audiospec_data_free(mrb_state *mrb, void *p)
 {
   mrb_sdl2_audio_audiospec_data_t *data =
     (mrb_sdl2_audio_audiospec_data_t*)p;
-  if (NULL != data) {
+  if(NULL != data)
     mrb_free(mrb, data);
-  }
 }
 
 static void
@@ -64,10 +68,10 @@ mrb_sdl2_audio_audiodevice_data_free(mrb_state *mrb, void *p)
 {
   mrb_sdl2_audio_audiodevice_data_t *data =
     (mrb_sdl2_audio_audiodevice_data_t*)p;
-  if (NULL != data) {
-    if (0 < data->id) {
+  if(NULL != data)
+  {
+    if(0 < data->id)
       SDL_CloseAudioDevice(data->id);
-    }
     mrb_free(mrb, p);
   }
 }
@@ -77,54 +81,55 @@ mrb_sdl2_audio_audiodata_data_free(mrb_state *mrb, void *p)
 {
   mrb_sdl2_audio_audiodata_data_t *data =
     (mrb_sdl2_audio_audiodata_data_t*)p;
-  if (NULL != data) {
-    if (NULL != data->buf) {
+  if(NULL != data)
+  {
+    if(NULL != data->buf)
       SDL_FreeWAV(data->buf);
-    }
     mrb_free(mrb, data);
   }
 }
 
-struct mrb_data_type const mrb_sdl2_audio_audiocvt_data_type = {
+struct mrb_data_type const mrb_sdl2_audio_audiocvt_data_type =
+{
   "AudioCVT", mrb_sdl2_audio_audiocvt_data_free
 };
 
-struct mrb_data_type const mrb_sdl2_audio_audiospec_data_type = {
+struct mrb_data_type const mrb_sdl2_audio_audiospec_data_type =
+{
   "AudioSpec", mrb_sdl2_audio_audiospec_data_free
 };
 
-struct mrb_data_type const mrb_sdl2_audio_audiodevice_data_type = {
+struct mrb_data_type const mrb_sdl2_audio_audiodevice_data_type =
+{
   "AudioDevice", mrb_sdl2_audio_audiodevice_data_free
 };
 
-struct mrb_data_type const mrb_sdl2_audio_audiodata_data_type = {
+struct mrb_data_type const mrb_sdl2_audio_audiodata_data_type =
+{
   "AudioData", mrb_sdl2_audio_audiodata_data_free
 };
 
 SDL_AudioSpec *
 mrb_sdl2_audiospec_get_ptr(mrb_state *mrb, mrb_value value)
 {
-  if (mrb_nil_p(value)) {
+  if(mrb_nil_p(value))
     return NULL;
-  }
   return &((mrb_sdl2_audio_audiospec_data_t*)mrb_data_get_ptr(mrb, value, &mrb_sdl2_audio_audiospec_data_type))->spec;
 }
 
 SDL_AudioCVT *
 mrb_sdl2_audiocvt_get_ptr(mrb_state *mrb, mrb_value value)
 {
-  if (mrb_nil_p(value)) {
+  if(mrb_nil_p(value))
     return NULL;
-  }
   return &((mrb_sdl2_audio_audiocvt_data_t*)mrb_data_get_ptr(mrb, value, &mrb_sdl2_audio_audiocvt_data_type))->cvt;
 }
 
 SDL_AudioDeviceID *
 mrb_sdl2_audiodevice_get_ptr(mrb_state *mrb, mrb_value value)
 {
-  if (mrb_nil_p(value)) {
+  if(mrb_nil_p(value))
     return NULL;
-  }
   return &((mrb_sdl2_audio_audiodevice_data_t*)mrb_data_get_ptr(mrb, value, &mrb_sdl2_audio_audiocvt_data_type))->id;
 }
 
@@ -133,14 +138,17 @@ mrb_sdl2_audiospec(mrb_state *mrb, SDL_AudioSpec const *value)
 {
   mrb_sdl2_audio_audiospec_data_t *data =
     (mrb_sdl2_audio_audiospec_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_audio_audiospec_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
+  if(NULL == value)
+  {
+    data->spec = (SDL_AudioSpec)
+    {
+      0,
+    };
   }
-  if (NULL == value) {
-    data->spec = (SDL_AudioSpec){ 0, };
-  } else {
+  else
     data->spec = *value;
-  }
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_AudioSpec, &mrb_sdl2_audio_audiospec_data_type, data));
 }
 
@@ -149,14 +157,17 @@ mrb_sdl2_audiocvt(mrb_state *mrb, SDL_AudioCVT const *value)
 {
   mrb_sdl2_audio_audiocvt_data_t *data =
     (mrb_sdl2_audio_audiocvt_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_audio_audiocvt_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
+  if(NULL == value)
+  {
+    data->cvt = (SDL_AudioCVT)
+    {
+      0,
+    };
   }
-  if (NULL == value) {
-    data->cvt = (SDL_AudioCVT){ 0, };
-  } else {
+  else
     data->cvt = *value;
-  }
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_AudioCVT, &mrb_sdl2_audio_audiocvt_data_type, data));
 }
 
@@ -165,9 +176,8 @@ mrb_sdl2_audiodevice(mrb_state *mrb, SDL_AudioDeviceID id)
 {
   mrb_sdl2_audio_audiodevice_data_t *data =
     (mrb_sdl2_audio_audiodevice_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_audio_audiodevice_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->id = id;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_AudioDevice, &mrb_sdl2_audio_audiodevice_data_type, data));
 }
@@ -183,9 +193,8 @@ mrb_sdl2_audio_init(mrb_state *mrb, mrb_value mod)
 {
   mrb_value name;
   mrb_get_args(mrb, "S", &name);
-  if (0 != SDL_AudioInit(RSTRING_PTR(name))) {
+  if(0 != SDL_AudioInit(RSTRING_PTR(name)))
     mruby_sdl2_raise_error(mrb);
-  }
   return mod;
 }
 
@@ -204,15 +213,13 @@ mrb_sdl2_audio_open(mrb_state *mrb, mrb_value mod)
   int ret;
   SDL_AudioSpec *desired = (SDL_AudioSpec*)mrb_sdl2_audiospec_get_ptr(mrb, arg);
   SDL_AudioSpec obtained;
-  if (NULL == desired) {
+  if(NULL == desired)
     mrb_raise(mrb, E_ARGUMENT_ERROR, "1st argument cannot be set to null.");
-  }
   ret = SDL_OpenAudio(
           desired,
           &obtained);
-  if (0 != ret) {
+  if(0 != ret)
     mruby_sdl2_raise_error(mrb);
-  }
   return mrb_sdl2_audiospec(mrb, &obtained);
 }
 
@@ -233,42 +240,43 @@ mrb_sdl2_audio_open_device(mrb_state *mrb, mrb_value mod)
 
   mrb_sdl2_audio_audiodevice_data_t *data =
     (mrb_sdl2_audio_audiodevice_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_audio_audiodevice_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
 
   SDL_AudioDeviceID id = 0;
-  switch (argc) {
-  case 3:
-    id = SDL_OpenAudioDevice(
-          RSTRING_PTR(device),
-          iscapture ? 1 : 0,
-          mrb_sdl2_audiospec_get_ptr(mrb, desired),
-          NULL,
-          0);
-    break;
-  case 4:
-    id = SDL_OpenAudioDevice(
-          RSTRING_PTR(device),
-          iscapture ? 1 : 0,
-          mrb_sdl2_audiospec_get_ptr(mrb, desired),
-          mrb_sdl2_audiospec_get_ptr(mrb, obtained),
-          0);
-    break;
-  case 5:
-    id = SDL_OpenAudioDevice(
-          RSTRING_PTR(device),
-          iscapture ? 1 : 0,
-          mrb_sdl2_audiospec_get_ptr(mrb, desired),
-          mrb_sdl2_audiospec_get_ptr(mrb, obtained),
-          allowed_changes);
-    break;
-  default:
-    mrb_free(mrb, data);
-    mrb_raise(mrb, E_ARGUMENT_ERROR, "wrong number of arguments.");
-    break;
+  switch(argc)
+  {
+    case 3:
+      id = SDL_OpenAudioDevice(
+             RSTRING_PTR(device),
+             iscapture ? 1 : 0,
+             mrb_sdl2_audiospec_get_ptr(mrb, desired),
+             NULL,
+             0);
+      break;
+    case 4:
+      id = SDL_OpenAudioDevice(
+             RSTRING_PTR(device),
+             iscapture ? 1 : 0,
+             mrb_sdl2_audiospec_get_ptr(mrb, desired),
+             mrb_sdl2_audiospec_get_ptr(mrb, obtained),
+             0);
+      break;
+    case 5:
+      id = SDL_OpenAudioDevice(
+             RSTRING_PTR(device),
+             iscapture ? 1 : 0,
+             mrb_sdl2_audiospec_get_ptr(mrb, desired),
+             mrb_sdl2_audiospec_get_ptr(mrb, obtained),
+             allowed_changes);
+      break;
+    default:
+      mrb_free(mrb, data);
+      mrb_raise(mrb, E_ARGUMENT_ERROR, "wrong number of arguments.");
+      break;
   }
-  if (0 == id) {
+  if(0 == id)
+  {
     mrb_free(mrb, data);
     mruby_sdl2_raise_error(mrb);
   }
@@ -290,11 +298,11 @@ mrb_sdl2_audio_get_drivers(mrb_state *mrb, mrb_value mod)
   int const n = SDL_GetNumAudioDrivers();
   int i;
   mrb_value array = mrb_ary_new_capa(mrb, n);
-  for (i = 0; i < n; ++i) {
+  for(i = 0; i < n; ++i)
+  {
     char const * const name = SDL_GetAudioDriver(i);
-    if (NULL == name) {
+    if(NULL == name)
       continue;
-    }
     mrb_ary_push(mrb, array, mrb_str_new_cstr(mrb, name));
   }
   return array;
@@ -308,11 +316,11 @@ mrb_sdl2_audio_get_devices(mrb_state *mrb, mrb_value mod)
   int const n = SDL_GetNumAudioDevices(iscapture ? 1 : 0);
   int i;
   mrb_value array = mrb_ary_new_capa(mrb, n);
-  for (i = 0; i < n; ++i) {
+  for(i = 0; i < n; ++i)
+  {
     char const * const name = SDL_GetAudioDeviceName(i, iscapture ? 1 : 0);
-    if (NULL == name) {
+    if(NULL == name)
       continue;
-    }
     mrb_ary_push(mrb, array, mrb_str_new_cstr(mrb, name));
   }
   return array;
@@ -322,9 +330,8 @@ static mrb_value
 mrb_sdl2_audio_get_current_driver(mrb_state *mrb, mrb_value mod)
 {
   char const * const name = SDL_GetCurrentAudioDriver();
-  if (NULL == name) {
+  if(NULL == name)
     return mrb_nil_value();
-  }
   return mrb_str_new_cstr(mrb, name);
 }
 
@@ -350,40 +357,42 @@ mrb_sdl2_audio_mix_audio(mrb_state *mrb, mrb_value mod)
   mrb_get_args(mrb, "oioiii", &dst, &dpos, &src, &spos, &len, &volume);
   Uint8 *dst_ptr = NULL;
   Uint8 const *src_ptr = NULL;
-  if (mrb_type(dst) == MRB_TT_CPTR) {
+  if(mrb_type(dst) == MRB_TT_CPTR)
     dst_ptr = (Uint8*)mrb_cptr(dst);
-  }
-  if (mrb_type(src) == MRB_TT_CPTR) {
+  if(mrb_type(src) == MRB_TT_CPTR)
     src_ptr = (Uint8 const *)mrb_cptr(src);
-  } else if (mrb_type(src) == MRB_TT_DATA) {
-    if (DATA_TYPE(src) == &mrb_sdl2_audio_audiodata_data_type) {
+  else if(mrb_type(src) == MRB_TT_DATA)
+  {
+    if(DATA_TYPE(src) == &mrb_sdl2_audio_audiodata_data_type)
+    {
       mrb_sdl2_audio_audiodata_data_t const *data =
         (mrb_sdl2_audio_audiodata_data_t*)mrb_data_get_ptr(mrb, src, &mrb_sdl2_audio_audiodata_data_type);
-      if (NULL != data->buf) {
+      if(NULL != data->buf)
+      {
         src_ptr = (Uint8 const *)data->buf;
-        if (spos > data->len) {
+        if(spos > data->len)
           len = 0;
-        } else if (len > (data->len - spos)) {
+        else if(len > (data->len - spos))
           len = data->len - spos;
-        }
-      } else {
-        mrb_raise(mrb, E_ARGUMENT_ERROR, "given argument has no audio buffer.");
       }
+      else
+        mrb_raise(mrb, E_ARGUMENT_ERROR, "given argument has no audio buffer.");
     }
-    if (DATA_TYPE(src) == &mrb_sdl2_audio_audiocvt_data_type) {
+    if(DATA_TYPE(src) == &mrb_sdl2_audio_audiocvt_data_type)
+    {
       mrb_sdl2_audio_audiocvt_data_t const *data =
         (mrb_sdl2_audio_audiocvt_data_t*)mrb_data_get_ptr(mrb, src, &mrb_sdl2_audio_audiocvt_data_type);
-      if (NULL != data->cvt.buf) {
+      if(NULL != data->cvt.buf)
+      {
         src_ptr = (Uint8 const *)data->cvt.buf;
         size_t const sz = data->cvt.len * data->cvt.len_mult;
-        if (spos > sz) {
+        if(spos > sz)
           len = 0;
-        } else if (len > (sz - spos)) {
+        else if(len > (sz - spos))
           len = sz - spos;
-        }
-      } else {
-        mrb_raise(mrb, E_ARGUMENT_ERROR, "given argument has no audio buffer.");
       }
+      else
+        mrb_raise(mrb, E_ARGUMENT_ERROR, "given argument has no audio buffer.");
     }
   }
   SDL_MixAudio(&dst_ptr[dpos], &src_ptr[spos], (Uint32)len, (int)volume);
@@ -415,13 +424,13 @@ mrb_sdl2_audio_audiospec_callback(void *userdata, Uint8 *stream, int len)
 
   SDL_memset(stream, spec->silence, len);
 
-  if (mrb_nil_p(block)) {
+  if(mrb_nil_p(block))
     return;
-  }
 
   // TODO migrate thread context if necessary.
 
-  mrb_value args[3] = {
+  mrb_value args[3] =
+  {
     udata,
     mrb_cptr_value(mrb, stream),
     mrb_fixnum_value(len)
@@ -438,38 +447,37 @@ mrb_sdl2_audio_audiospec_initialize(mrb_state *mrb, mrb_value self)
   mrb_sdl2_audio_audiospec_data_t *data =
     (mrb_sdl2_audio_audiospec_data_t*)DATA_PTR(self);
 
-  if (NULL == data) {
+  if(NULL == data)
+  {
     data = (mrb_sdl2_audio_audiospec_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_audio_audiospec_data_t));
-    if (NULL == data) {
+    if(NULL == data)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
-    data->spec = (SDL_AudioSpec){ 0, };
+    data->spec = (SDL_AudioSpec)
+    {
+      0,
+    };
     data->spec.callback = &mrb_sdl2_audio_audiospec_callback;
     data->spec.userdata = (void*)&data->udata;
   }
 
   data->udata.mrb = mrb;
   data->udata.obj = self;
-  if (0 < argc) {
+  if(0 < argc)
     data->spec.freq = (int)freq;
-  } else {
+  else
     data->spec.freq = 22050;
-  }
-  if (1 < argc) {
+  if(1 < argc)
     data->spec.format = (SDL_AudioFormat)format;
-  } else {
+  else
     data->spec.format = AUDIO_F32SYS;
-  }
-  if (2 < argc) {
+  if(2 < argc)
     data->spec.channels = (Uint8)channels;
-  } else {
+  else
     data->spec.channels = 2;
-  }
-  if (3 < argc) {
+  if(3 < argc)
     data->spec.samples = (Uint16)samples;
-  } else {
+  else
     data->spec.samples = 4096;
-  }
 
   DATA_PTR(self) = data;
   DATA_TYPE(self) = &mrb_sdl2_audio_audiospec_data_type;
@@ -559,9 +567,8 @@ mrb_sdl2_audio_audiospec_set_callback(mrb_state *mrb, mrb_value self)
 {
   mrb_value proc;
   mrb_get_args(mrb, "o", &proc);
-  if (mrb_type(proc) != MRB_TT_PROC) {
+  if(mrb_type(proc) != MRB_TT_PROC)
     mrb_raise(mrb, E_TYPE_ERROR, "given value is not proc object.");
-  }
   mrb_iv_set(mrb, self, mrb_intern(mrb, "callback", 8), proc);
   return self;
 }
@@ -597,18 +604,21 @@ mrb_sdl2_audio_audiocvt_initialize(mrb_state *mrb, mrb_value self)
   mrb_sdl2_audio_audiospec_data_t *sspec =
     (mrb_sdl2_audio_audiospec_data_t*)mrb_data_get_ptr(mrb, src_spec, &mrb_sdl2_audio_audiospec_data_type);
 
-  mrb_sdl2_audio_audiodata_data_t *sdata = 
+  mrb_sdl2_audio_audiodata_data_t *sdata =
     (mrb_sdl2_audio_audiodata_data_t*)mrb_data_get_ptr(mrb, src_data, &mrb_sdl2_audio_audiodata_data_type);
 
   mrb_sdl2_audio_audiocvt_data_t *data =
     (mrb_sdl2_audio_audiocvt_data_t*)DATA_PTR(self);
 
-  if (NULL == data) {
+  if(NULL == data)
+  {
     data = (mrb_sdl2_audio_audiocvt_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_audio_audiocvt_data_t));
-    if (NULL == data) {
+    if(NULL == data)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
-    data->cvt = (SDL_AudioCVT){ 0, };
+    data->cvt = (SDL_AudioCVT)
+    {
+      0,
+    };
   }
 
   int const ret = SDL_BuildAudioCVT(
@@ -619,22 +629,20 @@ mrb_sdl2_audio_audiocvt_initialize(mrb_state *mrb, mrb_value self)
                     (SDL_AudioFormat)format,
                     (Uint8)channels,
                     (int)freq);
-  if (ret < 0) {
+  if(ret < 0)
     mruby_sdl2_raise_error(mrb);
-  }
-  if (0 != sdata->len) {
+  if(0 != sdata->len)
     data->cvt.len = sdata->len;
-  } else {
+  else
     data->cvt.len = sspec->spec.size;
-  }
   data->cvt.buf = mrb_malloc(mrb, data->cvt.len_mult * data->cvt.len);
-  if (NULL == data->cvt.buf) {
+  if(NULL == data->cvt.buf)
+  {
     mrb_free(mrb, data);
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
   }
-  if (NULL != sdata->buf) {
+  if(NULL != sdata->buf)
     SDL_memcpy(data->cvt.buf, sdata->buf, sdata->len);
-  }
 
   DATA_PTR(self) = data;
   DATA_TYPE(self) = &mrb_sdl2_audio_audiocvt_data_type;
@@ -645,9 +653,8 @@ mrb_sdl2_audio_audiocvt_initialize(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_audio_audiocvt_convert(mrb_state *mrb, mrb_value self)
 {
-  if (0 != SDL_ConvertAudio(mrb_sdl2_audiocvt_get_ptr(mrb, self))) {
+  if(0 != SDL_ConvertAudio(mrb_sdl2_audiocvt_get_ptr(mrb, self)))
     mruby_sdl2_raise_error(mrb);
-  }
   return self;
 }
 
@@ -670,28 +677,29 @@ mrb_sdl2_audio_audiodevice_initialize(mrb_state *mrb, mrb_value self)
   SDL_AudioSpec *desired = mrb_sdl2_audiospec_get_ptr(mrb, spec);
   SDL_AudioSpec obtained;
 
-  if (mrb_nil_p(devname)) {
+  if(mrb_nil_p(devname))
     device = NULL;
-  } else if (mrb_type(devname) == MRB_TT_STRING) {
+  else if(mrb_type(devname) == MRB_TT_STRING)
     device = RSTRING_PTR(devname);
-  } else {
+  else
     mrb_raise(mrb, E_TYPE_ERROR, "expected String");
-  }
 
-  if (NULL == data) {
+  if(NULL == data)
+  {
     data = (mrb_sdl2_audio_audiodevice_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_audio_audiodevice_data_t));
-    if (NULL == data) {
+    if(NULL == data)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
     data->id = 0;
-    data->spec = (SDL_AudioSpec){ 0, };
+    data->spec = (SDL_AudioSpec)
+    {
+      0,
+    };
   }
 
   SDL_AudioDeviceID id = SDL_OpenAudioDevice(
-    device, iscapture ? 1 : 0, desired, &obtained, allowed_changes);
-  if (0 == id) {
+                           device, iscapture ? 1 : 0, desired, &obtained, allowed_changes);
+  if(0 == id)
     mruby_sdl2_raise_error(mrb);
-  }
 
   data->id = id;
   data->spec = obtained;
@@ -707,7 +715,8 @@ mrb_sdl2_audio_audiodevice_close(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_audio_audiodevice_data_t *data =
     (mrb_sdl2_audio_audiodevice_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_audio_audiodevice_data_type);
-  if (0 < data->id) {
+  if(0 < data->id)
+  {
     SDL_CloseAudioDevice(data->id);
     data->id = 0;
   }
@@ -729,9 +738,8 @@ mrb_sdl2_audio_audiodevice_pause(mrb_state *mrb, mrb_value self)
     (mrb_sdl2_audio_audiodevice_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_audio_audiodevice_data_type);
   mrb_bool pause;
   mrb_get_args(mrb, "b", &pause);
-  if (0 < data->id) {
+  if(0 < data->id)
     SDL_PauseAudioDevice(data->id, pause ? 1 : 0);
-  }
   return self;
 }
 
@@ -740,9 +748,8 @@ mrb_sdl2_audio_audiodevice_lock(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_audio_audiodevice_data_t *data =
     (mrb_sdl2_audio_audiodevice_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_audio_audiodevice_data_type);
-  if (0 < data->id) {
+  if(0 < data->id)
     SDL_LockAudioDevice(data->id);
-  }
   return self;
 }
 
@@ -751,9 +758,8 @@ mrb_sdl2_audio_audiodevice_unlock(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_audio_audiodevice_data_t *data =
     (mrb_sdl2_audio_audiodevice_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_audio_audiodevice_data_type);
-  if (0 < data->id) {
+  if(0 < data->id)
     SDL_UnlockAudioDevice(data->id);
-  }
   return self;
 }
 
@@ -762,9 +768,8 @@ mrb_sdl2_audio_audiodevice_get_status(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_audio_audiodevice_data_t *data =
     (mrb_sdl2_audio_audiodevice_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_audio_audiodevice_data_type);
-  if (0 < data->id) {
+  if(0 < data->id)
     return mrb_fixnum_value(SDL_GetAudioDeviceStatus(data->id));
-  }
   return mrb_nil_value();
 }
 
@@ -783,13 +788,14 @@ mrb_sdl2_audio_audiodata_initialize(mrb_state *mrb, mrb_value self)
 
   mrb_sdl2_audio_audiospec_data_t *spec =
     (mrb_sdl2_audio_audiospec_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_audio_audiospec_data_t));
-  if (NULL == spec) {
+  if(NULL == spec)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
 
-  if (NULL == data) {
+  if(NULL == data)
+  {
     data = (mrb_sdl2_audio_audiodata_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_audio_audiodata_data_t));
-    if (NULL == data) {
+    if(NULL == data)
+    {
       mrb_free(mrb, spec);
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
     }
@@ -798,7 +804,8 @@ mrb_sdl2_audio_audiodata_initialize(mrb_state *mrb, mrb_value self)
   }
 
   mrb_get_args(mrb, "S", &file);
-  if (NULL == SDL_LoadWAV(RSTRING_PTR(file), &spec->spec, &data->buf, &data->len)) {
+  if(NULL == SDL_LoadWAV(RSTRING_PTR(file), &spec->spec, &data->buf, &data->len))
+  {
     mrb_free(mrb, spec);
     mrb_free(mrb, data);
     mruby_sdl2_raise_error(mrb);
@@ -824,7 +831,8 @@ mrb_sdl2_audio_audiodata_destroy(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_audio_audiodata_data_t *data =
     (mrb_sdl2_audio_audiodata_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_audio_audiodata_data_type);
-  if (NULL != data->buf) {
+  if(NULL != data->buf)
+  {
     SDL_FreeWAV(data->buf);
     data->buf = NULL;
     data->len = 0;

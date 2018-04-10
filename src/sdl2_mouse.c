@@ -9,7 +9,8 @@
 static struct RClass *mod_Mouse = NULL;
 static struct RClass *class_Cursor = NULL;
 
-typedef struct mrb_sdl2_input_mouse_cursor_data_t {
+typedef struct mrb_sdl2_input_mouse_cursor_data_t
+{
   bool        is_associated;
   SDL_Cursor *cursor;
 } mrb_sdl2_input_mouse_cursor_data_t;
@@ -19,24 +20,24 @@ mrb_sdl2_input_mouse_cursor_data_free(mrb_state *mrb, void *p)
 {
   mrb_sdl2_input_mouse_cursor_data_t *data =
     (mrb_sdl2_input_mouse_cursor_data_t*)p;
-  if (NULL != data) {
-    if ((!data->is_associated) && (NULL != data->cursor)) {
+  if(NULL != data)
+  {
+    if((!data->is_associated) && (NULL != data->cursor))
       SDL_FreeCursor(data->cursor);
-    }
     mrb_free(mrb, data);
   }
 }
 
-static struct mrb_data_type const mrb_sdl2_input_mouse_cursor_data_type = {
+static struct mrb_data_type const mrb_sdl2_input_mouse_cursor_data_type =
+{
   "Cursor", &mrb_sdl2_input_mouse_cursor_data_free
 };
 
 SDL_Cursor *
 mrb_sdl2_input_cursor_get_ptr(mrb_state *mrb, mrb_value cursor)
 {
-  if (mrb_nil_p(cursor)) {
+  if(mrb_nil_p(cursor))
     return NULL;
-  }
 
   mrb_sdl2_input_mouse_cursor_data_t *data =
     (mrb_sdl2_input_mouse_cursor_data_t*)mrb_data_get_ptr(mrb, cursor, &mrb_sdl2_input_mouse_cursor_data_type);
@@ -46,15 +47,13 @@ mrb_sdl2_input_cursor_get_ptr(mrb_state *mrb, mrb_value cursor)
 mrb_value
 mrb_sdl2_input_cursor(mrb_state *mrb, SDL_Cursor *cursor)
 {
-  if (NULL == cursor) {
+  if(NULL == cursor)
     return mrb_nil_value();
-  }
 
   mrb_sdl2_input_mouse_cursor_data_t *data =
     (mrb_sdl2_input_mouse_cursor_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_mouse_cursor_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->is_associated = false;
   data->cursor = cursor;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_Cursor, &mrb_sdl2_input_mouse_cursor_data_type, data));
@@ -63,15 +62,13 @@ mrb_sdl2_input_cursor(mrb_state *mrb, SDL_Cursor *cursor)
 mrb_value
 mrb_sdl2_input_associated_cursor(mrb_state *mrb, SDL_Cursor *cursor)
 {
-  if (NULL == cursor) {
+  if(NULL == cursor)
     return mrb_nil_value();
-  }
 
   mrb_sdl2_input_mouse_cursor_data_t *data =
     (mrb_sdl2_input_mouse_cursor_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_mouse_cursor_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->is_associated = true;
   data->cursor = cursor;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_Cursor, &mrb_sdl2_input_mouse_cursor_data_type, data));
@@ -93,11 +90,10 @@ static mrb_value
 mrb_sdl2_input_mouse_mouse_state(mrb_state *mrb, mrb_value self)
 {
   Uint32 state;
-  if (SDL_FALSE == SDL_GetRelativeMouseMode()) {
+  if(SDL_FALSE == SDL_GetRelativeMouseMode())
     state = SDL_GetMouseState(NULL, NULL);
-  } else {
+  else
     state = SDL_GetRelativeMouseState(NULL, NULL);
-  }
   return mrb_fixnum_value(state);
 }
 
@@ -105,11 +101,10 @@ static mrb_value
 mrb_sdl2_input_mouse_get_location(mrb_state *mrb, mrb_value self)
 {
   int x, y;
-  if (SDL_FALSE == SDL_GetRelativeMouseMode()) {
+  if(SDL_FALSE == SDL_GetRelativeMouseMode())
     (void)SDL_GetMouseState(&x, &y);
-  } else {
+  else
     (void)SDL_GetRelativeMouseState(&x, &y);
-  }
   return mrb_sdl2_point(mrb, x, y);
 }
 
@@ -117,11 +112,10 @@ static mrb_value
 mrb_sdl2_input_mouse_get_x(mrb_state *mrb, mrb_value self)
 {
   int x;
-  if (SDL_FALSE == SDL_GetRelativeMouseMode()) {
+  if(SDL_FALSE == SDL_GetRelativeMouseMode())
     (void)SDL_GetMouseState(&x, NULL);
-  } else {
+  else
     (void)SDL_GetRelativeMouseState(&x, NULL);
-  }
   return mrb_fixnum_value(x);
 }
 
@@ -129,11 +123,10 @@ static mrb_value
 mrb_sdl2_input_mouse_get_y(mrb_state *mrb, mrb_value self)
 {
   int y;
-  if (SDL_FALSE == SDL_GetRelativeMouseMode()) {
+  if(SDL_FALSE == SDL_GetRelativeMouseMode())
     (void)SDL_GetMouseState(NULL, &y);
-  } else {
+  else
     (void)SDL_GetRelativeMouseState(NULL, &y);
-  }
   return mrb_fixnum_value(y);
 }
 
@@ -148,9 +141,8 @@ mrb_sdl2_input_mouse_set_relative(mrb_state *mrb, mrb_value self)
 {
   mrb_bool is_relative;
   mrb_get_args(mrb, "b", &is_relative);
-  if (0 > SDL_SetRelativeMouseMode(is_relative ? SDL_TRUE : SDL_FALSE)) {
+  if(0 > SDL_SetRelativeMouseMode(is_relative ? SDL_TRUE : SDL_FALSE))
     mruby_sdl2_raise_error(mrb);
-  }
   return self;
 }
 
@@ -175,18 +167,16 @@ mrb_sdl2_input_mouse_set_cursor(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_sdl2_input_mouse_show_cursor(mrb_state *mrb, mrb_value self)
 {
-  if (0 > SDL_ShowCursor(1)) {
+  if(0 > SDL_ShowCursor(1))
     mruby_sdl2_raise_error(mrb);
-  }
   return self;
 }
 
 static mrb_value
 mrb_sdl2_input_mouse_hide_cursor(mrb_state *mrb, mrb_value self)
 {
-  if (0 > SDL_ShowCursor(0)) {
+  if(0 > SDL_ShowCursor(0))
     mruby_sdl2_raise_error(mrb);
-  }
   return self;
 }
 
@@ -213,38 +203,44 @@ mrb_sdl2_input_mouse_cursor_initialize(mrb_state *mrb, mrb_value self)
   mrb_sdl2_input_mouse_cursor_data_t *data =
     (mrb_sdl2_input_mouse_cursor_data_t*)DATA_PTR(self);
 
-  if (NULL == data) {
+  if(NULL == data)
+  {
     data = (mrb_sdl2_input_mouse_cursor_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_mouse_cursor_data_t));
-    if (NULL == data) {
+    if(NULL == data)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
     data->is_associated = false;
     data->cursor = NULL;
   }
 
   SDL_Cursor *cursor = NULL;
-  if (3 == mrb->c->ci->argc) {
+  if(3 == mrb->c->ci->argc)
+  {
     mrb_value surface;
     mrb_int hot_x, hot_y;
     mrb_get_args(mrb, "oii", &surface, &hot_x, &hot_y);
     SDL_Surface *s = mrb_sdl2_video_surface_get_ptr(mrb, surface);
     cursor = SDL_CreateColorCursor(s, hot_x, hot_y);
-  } else if (6 == mrb->c->ci->argc) {
+  }
+  else if(6 == mrb->c->ci->argc)
+  {
     mrb_value data_ptr, mask_ptr;
     mrb_int w, h, hot_x, hot_y;
     mrb_get_args(mrb, "ooiiii", &data_ptr, &mask_ptr, &w, &h, &hot_x, &hot_y);
     cursor = SDL_CreateCursor(
-      (Uint8 const *)mrb_cptr(data_ptr),
-      (Uint8 const *)mrb_cptr(mask_ptr),
-      w,
-      h,
-      hot_x,
-      hot_y);
-  } else {
+               (Uint8 const *)mrb_cptr(data_ptr),
+               (Uint8 const *)mrb_cptr(mask_ptr),
+               w,
+               h,
+               hot_x,
+               hot_y);
+  }
+  else
+  {
     mrb_free(mrb, data);
     mrb_raise(mrb, E_ARGUMENT_ERROR, "wrong number of arguments.");
   }
-  if (NULL == cursor) {
+  if(NULL == cursor)
+  {
     mrb_free(mrb, data);
     mruby_sdl2_raise_error(mrb);
   }
@@ -261,7 +257,8 @@ mrb_sdl2_input_mouse_cursor_free(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_input_mouse_cursor_data_t *data =
     (mrb_sdl2_input_mouse_cursor_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_input_mouse_cursor_data_type);
-  if ((!data->is_associated) && (NULL != data->cursor)) {
+  if((!data->is_associated) && (NULL != data->cursor))
+  {
     SDL_FreeCursor(data->cursor);
     data->cursor = NULL;
   }

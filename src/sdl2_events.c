@@ -32,7 +32,8 @@ static struct RClass *class_TouchFingerEvent      = NULL;
 static struct RClass *class_UserEvent             = NULL;
 static struct RClass *class_WindowEvent           = NULL;
 
-typedef struct mrb_sdl2_input_event_data_t {
+typedef struct mrb_sdl2_input_event_data_t
+{
   SDL_Event event;
 } mrb_sdl2_input_event_data_t;
 
@@ -42,16 +43,16 @@ mrb_sdl2_input_event_data_free(mrb_state *mrb, void *p)
   mrb_free(mrb, p);
 }
 
-static struct mrb_data_type const mrb_sdl2_input_event_data_type = {
+static struct mrb_data_type const mrb_sdl2_input_event_data_type =
+{
   "Event", &mrb_sdl2_input_event_data_free
 };
 
 SDL_Event *
 mrb_sdl2_input_event_get_ptr(mrb_state *mrb, mrb_value value)
 {
-  if (mrb_nil_p(value)) {
+  if(mrb_nil_p(value))
     return NULL;
-  }
   mrb_sdl2_input_event_data_t *data =
     (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, value, &mrb_sdl2_input_event_data_type);
   return &data->event;
@@ -60,89 +61,89 @@ mrb_sdl2_input_event_get_ptr(mrb_state *mrb, mrb_value value)
 mrb_value
 mrb_sdl2_input_event(mrb_state *mrb, SDL_Event const *event)
 {
-  if (NULL == event) {
+  if(NULL == event)
     return mrb_nil_value();
-  }
 
   mrb_sdl2_input_event_data_t *data =
     (mrb_sdl2_input_event_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_event_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->event = *event;
 
-  switch (event->type) {
-  case SDL_QUIT:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_QuitEvent,   &mrb_sdl2_input_event_data_type, data));
-  case SDL_APP_TERMINATING:
-  case SDL_APP_LOWMEMORY:
-  case SDL_APP_WILLENTERBACKGROUND:
-  case SDL_APP_DIDENTERBACKGROUND:
-  case SDL_APP_WILLENTERFOREGROUND:
-  case SDL_APP_DIDENTERFOREGROUND:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_OsEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_WINDOWEVENT:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_WindowEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_SYSWMEVENT:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_SysWMEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_KEYDOWN:
-  case SDL_KEYUP:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_KeyboardEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_TEXTEDITING:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_TextEditingEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_TEXTINPUT:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_TextInputEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_MOUSEMOTION:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_MouseMotionEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_MOUSEBUTTONDOWN:
-  case SDL_MOUSEBUTTONUP:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_MouseButtonEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_MOUSEWHEEL:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_MouseWheelEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_JOYAXISMOTION:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyAxisEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_JOYBALLMOTION:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyBallEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_JOYHATMOTION:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyHatEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_JOYBUTTONDOWN:
-  case SDL_JOYBUTTONUP:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyButtonEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_JOYDEVICEADDED:
-  case SDL_JOYDEVICEREMOVED:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyDeviceEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_CONTROLLERAXISMOTION:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_ControllerAxisEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_CONTROLLERBUTTONDOWN:
-  case SDL_CONTROLLERBUTTONUP:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_ControllerButtonEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_CONTROLLERDEVICEADDED:
-  case SDL_CONTROLLERDEVICEREMOVED:
-  case SDL_CONTROLLERDEVICEREMAPPED:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_ControllerDeviceEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_FINGERDOWN:
-  case SDL_FINGERUP:
-  case SDL_FINGERMOTION:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_TouchFingerEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_DOLLARGESTURE:
-  case SDL_DOLLARRECORD:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_DollarGestureEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_MULTIGESTURE:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_MultiGestureEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_CLIPBOARDUPDATE:
-    break; /* missing event */
-  case SDL_DROPFILE:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_DropEvent, &mrb_sdl2_input_event_data_type, data));
-  case SDL_USEREVENT:
-    return mrb_obj_value(Data_Wrap_Struct(mrb, class_UserEvent, &mrb_sdl2_input_event_data_type, data));
-  default:
-    if (event->type > SDL_USEREVENT) {
+  switch(event->type)
+  {
+    case SDL_QUIT:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_QuitEvent,   &mrb_sdl2_input_event_data_type, data));
+    case SDL_APP_TERMINATING:
+    case SDL_APP_LOWMEMORY:
+    case SDL_APP_WILLENTERBACKGROUND:
+    case SDL_APP_DIDENTERBACKGROUND:
+    case SDL_APP_WILLENTERFOREGROUND:
+    case SDL_APP_DIDENTERFOREGROUND:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_OsEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_WINDOWEVENT:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_WindowEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_SYSWMEVENT:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_SysWMEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_KEYDOWN:
+    case SDL_KEYUP:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_KeyboardEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_TEXTEDITING:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_TextEditingEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_TEXTINPUT:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_TextInputEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_MOUSEMOTION:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_MouseMotionEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_MouseButtonEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_MOUSEWHEEL:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_MouseWheelEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_JOYAXISMOTION:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyAxisEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_JOYBALLMOTION:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyBallEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_JOYHATMOTION:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyHatEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_JOYBUTTONDOWN:
+    case SDL_JOYBUTTONUP:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyButtonEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_JOYDEVICEADDED:
+    case SDL_JOYDEVICEREMOVED:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_JoyDeviceEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_CONTROLLERAXISMOTION:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_ControllerAxisEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_CONTROLLERBUTTONDOWN:
+    case SDL_CONTROLLERBUTTONUP:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_ControllerButtonEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_CONTROLLERDEVICEADDED:
+    case SDL_CONTROLLERDEVICEREMOVED:
+    case SDL_CONTROLLERDEVICEREMAPPED:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_ControllerDeviceEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_FINGERDOWN:
+    case SDL_FINGERUP:
+    case SDL_FINGERMOTION:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_TouchFingerEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_DOLLARGESTURE:
+    case SDL_DOLLARRECORD:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_DollarGestureEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_MULTIGESTURE:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_MultiGestureEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_CLIPBOARDUPDATE:
+      break; /* missing event */
+    case SDL_DROPFILE:
+      return mrb_obj_value(Data_Wrap_Struct(mrb, class_DropEvent, &mrb_sdl2_input_event_data_type, data));
+    case SDL_USEREVENT:
       return mrb_obj_value(Data_Wrap_Struct(mrb, class_UserEvent, &mrb_sdl2_input_event_data_type, data));
-    } else {
-      mrb_free(mrb, data);
-      mrb_raise(mrb, E_RUNTIME_ERROR, "undefined event type.");
-    }
-    break;
+    default:
+      if(event->type > SDL_USEREVENT)
+        return mrb_obj_value(Data_Wrap_Struct(mrb, class_UserEvent, &mrb_sdl2_input_event_data_type, data));
+      else
+      {
+        mrb_free(mrb, data);
+        mrb_raise(mrb, E_RUNTIME_ERROR, "undefined event type.");
+      }
+      break;
   }
 
   mrb_free(mrb, data);
@@ -159,9 +160,8 @@ static mrb_value
 mrb_sdl2_input_poll(mrb_state *mrb, mrb_value mod)
 {
   SDL_Event event;
-  if (0 == SDL_PollEvent(&event)) {
+  if(0 == SDL_PollEvent(&event))
     return mrb_nil_value();
-  }
   return mrb_sdl2_input_event(mrb, &event);
 }
 
@@ -169,9 +169,8 @@ static mrb_value
 mrb_sdl2_input_wait(mrb_state *mrb, mrb_value mod)
 {
   SDL_Event event;
-  if (0 == SDL_WaitEvent(&event)) {
+  if(0 == SDL_WaitEvent(&event))
     mruby_sdl2_raise_error(mrb);
-  }
   return mrb_sdl2_input_event(mrb, &event);
 }
 
@@ -181,9 +180,8 @@ mrb_sdl2_input_wait_timeout(mrb_state *mrb, mrb_value mod)
   mrb_int timeout;
   mrb_get_args(mrb, "i", &timeout);
   SDL_Event event;
-  if (0 == SDL_WaitEventTimeout(&event, timeout)) {
+  if(0 == SDL_WaitEventTimeout(&event, timeout))
     return mrb_nil_value();
-  }
   return mrb_sdl2_input_event(mrb, &event);
 }
 
@@ -209,11 +207,10 @@ mrb_sdl2_input_flush_event(mrb_state *mrb, mrb_value self)
 {
   mrb_int min, max;
   int const argc = mrb_get_args(mrb, "i|i", &min, &max);
-  if (1 == argc) {
+  if(1 == argc)
     SDL_FlushEvent(min);
-  } else {
+  else
     SDL_FlushEvents(min, max);
-  }
   return self;
 }
 
@@ -223,11 +220,10 @@ mrb_sdl2_input_has_events(mrb_state *mrb, mrb_value self)
   mrb_int min, max;
   int const argc = mrb_get_args(mrb, "i|i", &min, &max);
   SDL_bool has_event;
-  if (1 == argc) {
+  if(1 == argc)
     has_event = SDL_HasEvent(min);
-  } else {
+  else
     has_event = SDL_HasEvents(min, max);
-  }
   return (SDL_FALSE == has_event) ? mrb_false_value() : mrb_true_value();
 }
 
@@ -253,9 +249,8 @@ mrb_sdl2_input_push(mrb_state *mrb, mrb_value self)
   mrb_sdl2_input_event_data_t *data =
     (mrb_sdl2_input_event_data_t*)mrb_data_get_ptr(mrb, event, &mrb_sdl2_input_event_data_type);
   int const ret = SDL_PushEvent(&data->event);
-  if (0 > ret) {
+  if(0 > ret)
     mruby_sdl2_raise_error(mrb);
-  }
   return mrb_fixnum_value(ret);
 }
 
@@ -505,9 +500,11 @@ mrb_sdl2_input_quitevent_timestamp(mrb_state *mrb, mrb_value self)
 *
 ***************************************************************************/
 
-typedef struct mrb_sdl2_input_user_data_t {
+typedef struct mrb_sdl2_input_user_data_t
+{
   enum mrb_vtype type;
-  union udata_t {
+  union udata_t
+  {
     mrb_int   fixnum_value;
     mrb_float float_value;
     void *    cptr_value;
@@ -520,34 +517,36 @@ mrb_sdl2_input_to_voidp(mrb_state *mrb, mrb_value data)
 {
   mrb_sdl2_input_user_data_t *udata =
     (mrb_sdl2_input_user_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_user_data_t));
-  if (NULL == udata) {
+  if(NULL == udata)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
-  switch (mrb_type(data)) {
-  case MRB_TT_FIXNUM:
-    udata->data.fixnum_value = mrb_fixnum(data);
-    break;
-  case MRB_TT_FLOAT:
-    udata->data.float_value = mrb_float(data);
-    break;
-  case MRB_TT_STRING: {
-    size_t const len = RSTRING_LEN(data);
-    char *str = (char*)mrb_malloc(mrb, sizeof(char) * (len + 1));
-    if (NULL == str) {
+  switch(mrb_type(data))
+  {
+    case MRB_TT_FIXNUM:
+      udata->data.fixnum_value = mrb_fixnum(data);
+      break;
+    case MRB_TT_FLOAT:
+      udata->data.float_value = mrb_float(data);
+      break;
+    case MRB_TT_STRING:
+      {
+        size_t const len = RSTRING_LEN(data);
+        char *str = (char*)mrb_malloc(mrb, sizeof(char) * (len + 1));
+        if(NULL == str)
+        {
+          mrb_free(mrb, udata);
+          mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
+        }
+        str[len] = '\0';
+        udata->data.string_value = str;
+        break;
+      }
+    case MRB_TT_CPTR:
+      udata->data.cptr_value = mrb_cptr(data);
+      break;
+    default:
       mrb_free(mrb, udata);
-      mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
-    str[len] = '\0';
-    udata->data.string_value = str;
-    break;
-  }
-  case MRB_TT_CPTR:
-    udata->data.cptr_value = mrb_cptr(data);
-    break;
-  default:
-    mrb_free(mrb, udata);
-    mrb_raise(mrb, E_TYPE_ERROR, "expected Fixnum/Float/String/Cptr");
-    break;
+      mrb_raise(mrb, E_TYPE_ERROR, "expected Fixnum/Float/String/Cptr");
+      break;
   }
   udata->type = mrb_type(data);
   return (void*)udata;
@@ -558,27 +557,27 @@ mrb_sdl2_input_to_value(mrb_state *mrb, void *data)
 {
   mrb_sdl2_input_user_data_t *udata =
     (mrb_sdl2_input_user_data_t*)data;
-  if (NULL == udata) {
+  if(NULL == udata)
     return mrb_nil_value();
-  }
   mrb_value value;
-  switch (udata->type) {
-  case MRB_TT_FIXNUM:
-    value = mrb_fixnum_value(udata->data.fixnum_value);
-    break;
-  case MRB_TT_FLOAT:
-    value = mrb_float_value(mrb, udata->data.float_value);
-    break;
-  case MRB_TT_STRING:
-    value = mrb_str_new_cstr(mrb, udata->data.string_value);
-    mrb_free(mrb, udata->data.string_value);
-    break;
-  case MRB_TT_CPTR:
-    value = mrb_cptr_value(mrb, udata->data.cptr_value);
-    break;
-  default:
-    value = mrb_nil_value();
-    break;
+  switch(udata->type)
+  {
+    case MRB_TT_FIXNUM:
+      value = mrb_fixnum_value(udata->data.fixnum_value);
+      break;
+    case MRB_TT_FLOAT:
+      value = mrb_float_value(mrb, udata->data.float_value);
+      break;
+    case MRB_TT_STRING:
+      value = mrb_str_new_cstr(mrb, udata->data.string_value);
+      mrb_free(mrb, udata->data.string_value);
+      break;
+    case MRB_TT_CPTR:
+      value = mrb_cptr_value(mrb, udata->data.cptr_value);
+      break;
+    default:
+      value = mrb_nil_value();
+      break;
   }
   mrb_free(mrb, data);
   return value;
@@ -590,27 +589,31 @@ mrb_sdl2_input_userevent_initialize(mrb_state *mrb, mrb_value self)
   mrb_sdl2_input_event_data_t *data =
     (mrb_sdl2_input_event_data_t*)DATA_PTR(self);
 
-  if (NULL == data) {
+  if(NULL == data)
+  {
     data = (mrb_sdl2_input_event_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_input_event_data_t));
-    if (NULL == data) {
+    if(NULL == data)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
-    data->event = (SDL_Event){ 0 };
+    data->event = (SDL_Event)
+    {
+      0
+    };
   }
 
   mrb_int type, code;
   mrb_value data1, data2;
   int const argc = mrb_get_args(mrb, "ii|oo", &type, &code, &data1, &data2);
 
-  switch (argc) {
-  case 4:
-    data->event.user.data2 = mrb_sdl2_input_to_voidp(mrb, data2);
-  case 3:
-    data->event.user.data1 = mrb_sdl2_input_to_voidp(mrb, data1);
-  case 2:
-    data->event.user.type = type;
-    data->event.user.code = code;
-    break;
+  switch(argc)
+  {
+    case 4:
+      data->event.user.data2 = mrb_sdl2_input_to_voidp(mrb, data2);
+    case 3:
+      data->event.user.data1 = mrb_sdl2_input_to_voidp(mrb, data1);
+    case 2:
+      data->event.user.type = type;
+      data->event.user.code = code;
+      break;
   }
 
   DATA_PTR(self) = data;

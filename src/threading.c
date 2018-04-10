@@ -29,7 +29,8 @@ extern void mrb_final_mrbgems(mrb_state*);
 #endif
 
 static void
-stack_init_for_thread(mrb_state *mrb) {
+stack_init_for_thread(mrb_state *mrb)
+{
   struct mrb_context *c = mrb->c;
 
   /* mrb_assert(mrb->stack == NULL); */
@@ -50,12 +51,12 @@ mrb_open_for_thread(mrb_state *vm)
   static const struct mrb_context mrb_context_zero = { 0 };
   mrb_state *mrb;
 
-#ifdef MRB_NAN_BOXING
+  #ifdef MRB_NAN_BOXING
   mrb_assert(sizeof(void*) == 4);
-#endif
+  #endif
 
   mrb = (mrb_state *)(vm->allocf)(NULL, NULL, sizeof(mrb_state), vm->ud);
-  if (mrb == NULL) return NULL;
+  if(mrb == NULL) return NULL;
 
   *mrb = *vm;
   mrb->jmp = NULL;

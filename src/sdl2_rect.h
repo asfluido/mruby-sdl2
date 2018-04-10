@@ -8,7 +8,8 @@
 extern "C" {
 #endif
 
-typedef struct size_data_t {
+typedef struct size_data_t
+{
   int w;
   int h;
 } size_data_t;

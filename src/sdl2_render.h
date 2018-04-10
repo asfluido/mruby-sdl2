@@ -5,7 +5,8 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_rect.h>
 
-typedef struct pixelbuf_data_t {
+typedef struct pixelbuf_data_t
+{
   SDL_Rect rect;
   void    *pixels;
   int      pitch;

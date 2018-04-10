@@ -6,7 +6,8 @@
 
 static struct RClass *class_Thread;
 
-typedef struct mrb_sdl2_thread_data_t {
+typedef struct mrb_sdl2_thread_data_t
+{
   SDL_Thread *thread;
 } mrb_sdl2_thread_data_t;
 
@@ -15,25 +16,25 @@ mrb_sdl2_thread_data_free(mrb_state *mrb, void *p)
 {
   mrb_sdl2_thread_data_t *data =
     (mrb_sdl2_thread_data_t*)p;
-  if (NULL != data) {
-    if (NULL != data->thread) {
+  if(NULL != data)
+  {
+    if(NULL != data->thread)
       SDL_WaitThread(data->thread, NULL);
-    }
     mrb_free(mrb, data);
   }
 }
 
-static struct mrb_data_type const mrb_sdl2_thread_data_type = {
+static struct mrb_data_type const mrb_sdl2_thread_data_type =
+{
   "Thread", mrb_sdl2_thread_data_free
 };
 
 SDL_Thread *
 mrb_sdl2_thread_get_ptr(mrb_state *mrb, mrb_value value)
 {
-  if (mrb_nil_p(value)) {
+  if(mrb_nil_p(value))
     return NULL;
-  }
-  mrb_sdl2_thread_data_t *data = 
+  mrb_sdl2_thread_data_t *data =
     (mrb_sdl2_thread_data_t*)mrb_data_get_ptr(mrb, value, &mrb_sdl2_thread_data_type);
   return data->thread;
 }
@@ -41,20 +42,19 @@ mrb_sdl2_thread_get_ptr(mrb_state *mrb, mrb_value value)
 mrb_value
 mrb_sdl2_thread(mrb_state *mrb, SDL_Thread *thread)
 {
-  if (NULL == thread) {
+  if(NULL == thread)
     return mrb_nil_value();
-  }
 
   mrb_sdl2_thread_data_t *data =
     (mrb_sdl2_thread_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_thread_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->thread = thread;
   return mrb_obj_value(Data_Wrap_Struct(mrb, class_Thread, &mrb_sdl2_thread_data_type, data));
 }
 
-typedef struct mrb_sdl2_thread_param_t {
+typedef struct mrb_sdl2_thread_param_t
+{
   mrb_state *mrb;
   mrb_value  proc;
 } mrb_sdl2_thread_param_t;
@@ -86,9 +86,8 @@ mrb_sdl2_thread_function(void *data)
   /* shut down the VM */
   mrb_close(thread_mrb);
 
-  if (mrb_type(ret) == MRB_TT_FIXNUM) {
+  if(mrb_type(ret) == MRB_TT_FIXNUM)
     return mrb_fixnum(ret);
-  }
   return 0;
 }
 
@@ -98,11 +97,11 @@ mrb_sdl2_thread_initialize(mrb_state *mrb, mrb_value self)
   mrb_sdl2_thread_data_t *data =
     (mrb_sdl2_thread_data_t*)DATA_PTR(self);
 
-  if (NULL == data) {
+  if(NULL == data)
+  {
     data = (mrb_sdl2_thread_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_thread_data_t));
-    if (NULL == data) {
+    if(NULL == data)
       mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-    }
     data->thread = NULL;
   }
 
@@ -111,7 +110,8 @@ mrb_sdl2_thread_initialize(mrb_state *mrb, mrb_value self)
 
   mrb_sdl2_thread_param_t *param =
     (mrb_sdl2_thread_param_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_thread_param_t));
-  if (NULL == param) {
+  if(NULL == param)
+  {
     mrb_free(mrb, data);
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
   }
@@ -119,7 +119,8 @@ mrb_sdl2_thread_initialize(mrb_state *mrb, mrb_value self)
   param->proc = proc;
 
   data->thread = SDL_CreateThread(mrb_sdl2_thread_function, "SDL_Thread", param);
-  if (NULL == data->thread) {
+  if(NULL == data->thread)
+  {
     mrb_free(mrb, param);
     mrb_free(mrb, data);
     mruby_sdl2_raise_error(mrb);
@@ -135,9 +136,8 @@ mrb_sdl2_thread_wait(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_thread_data_t *data =
     (mrb_sdl2_thread_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_thread_data_type);
-  if (NULL == data->thread) {
+  if(NULL == data->thread)
     return self;
-  }
   int status = 0;
   SDL_WaitThread(data->thread, &status);
   data->thread = NULL;
@@ -149,9 +149,8 @@ mrb_sdl2_thread_get_id(mrb_state *mrb, mrb_value self)
 {
   mrb_sdl2_thread_data_t *data =
     (mrb_sdl2_thread_data_t*)mrb_data_get_ptr(mrb, self, &mrb_sdl2_thread_data_type);
-  if (NULL == data->thread) {
+  if(NULL == data->thread)
     return mrb_nil_value();
-  }
   return mrb_fixnum_value(SDL_GetThreadID(data->thread));
 }
 
@@ -160,9 +159,8 @@ mrb_sdl2_thread_set_priority(mrb_state *mrb, mrb_value cls)
 {
   mrb_int priority;
   mrb_get_args(mrb, "i", &priority);
-  if (0 > SDL_SetThreadPriority(priority)) {
+  if(0 > SDL_SetThreadPriority(priority))
     mruby_sdl2_raise_error(mrb);
-  }
   return cls;
 }
 

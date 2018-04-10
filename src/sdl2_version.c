@@ -13,16 +13,16 @@ mrb_sdl2_version_data_free(mrb_state *mrb, void *p)
   mrb_free(mrb, p);
 }
 
-static struct mrb_data_type const mrb_sdl2_version_data_type = {
+static struct mrb_data_type const mrb_sdl2_version_data_type =
+{
   "Version", mrb_sdl2_version_data_free
 };
 
 mrb_sdl2_version_data_t *
 mrb_sdl2_version_get_ptr(mrb_state *mrb, mrb_value value)
 {
-  if (mrb_nil_p(value)) {
+  if(mrb_nil_p(value))
     return NULL;
-  }
   return mrb_data_get_ptr(mrb, value, &mrb_sdl2_version_data_type);
 }
 
@@ -31,9 +31,8 @@ mrb_sdl2_version(mrb_state *mrb, SDL_version *version, char const *rev, int revn
 {
   mrb_sdl2_version_data_t *data =
     (mrb_sdl2_version_data_t*)mrb_malloc(mrb, sizeof(mrb_sdl2_version_data_t));
-  if (NULL == data) {
+  if(NULL == data)
     mrb_raise(mrb, E_RUNTIME_ERROR, "insufficient memory.");
-  }
   data->version  = *version;
   data->revision = rev;
   data->revnum   = revnum;

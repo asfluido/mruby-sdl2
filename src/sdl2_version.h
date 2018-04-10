@@ -8,7 +8,8 @@
 extern "C" {
 #endif
 
-typedef struct mrb_sdl2_version_data_t {
+typedef struct mrb_sdl2_version_data_t
+{
   SDL_version version;
   char const *revision;
   int         revnum;
